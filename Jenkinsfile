@@ -1,15 +1,34 @@
 pipeline {
-  agent any
-  stages {
-    stage('Build') {
-      steps {
-        echo 'Building...'
-      }
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package' // Update with your project build command
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test' // Or any other unit testing framework
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            environment {
+                scannerHome = tool 'SonarScanner'
+            }
+            steps {
+                withSonarQubeEnv('SonarCloud') {
+                    sh '${scannerHome}/bin/sonar-scanner'
+                }
+            }
+        }
     }
-    stage('Test') {
-      steps {
-        echo 'Running tests...'
-      }
-    }
-  }
 }
