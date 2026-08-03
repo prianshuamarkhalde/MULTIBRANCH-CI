@@ -1,7 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_NAME = "54.145.247.149:8082/devsecops-nexus:${BUILD_NUMBER}"
+    }
+
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -10,23 +15,33 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean package' // Update with your project build command
+                sh 'mvn clean package'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                sh 'mvn test' // Or any other unit testing framework
+                sh 'mvn test'
             }
         }
 
         stage('SonarQube Analysis') {
             environment {
-                scannerHome = tool 'SonarScanner'
+                SCANNER_HOME = tool 'SonarScanner'
             }
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    sh '${scannerHome}/bin/sonar-scanner'
+                    sh """
+                        ${SCANNER_HOME}/bin/sonar-scanner
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -49,12 +64,14 @@ pipeline {
 
         stage('Download Artifact from JFrog') {
             steps {
+                sh 'mkdir -p downloaded'
+
                 rtDownload(
                     serverId: 'jfrog-server',
                     spec: '''{
                         "files": [
                             {
-                                "pattern": "libs-release-local/*.jar",
+                                "pattern": "libs-release-local/**/*.jar",
                                 "target": "downloaded/"
                             }
                         ]
@@ -63,18 +80,46 @@ pipeline {
             }
         }
 
-        stage('Docker Build and Publish') {
+        stage('Docker Build') {
             steps {
                 script {
-                    // Build Docker image using the Dockerfile
-                    def dockerImage = docker.build("devsecops-nexus:${BUILD_NUMBER}", ".")
+                    dockerImage = docker.build("${IMAGE_NAME}")
+                }
+            }
+        }
 
-                    // Login to Artifactory Docker Registry and push image
+        stage('Docker Push to JFrog') {
+            steps {
+                script {
                     docker.withRegistry('http://54.145.247.149:8082', 'credentials-jfrog') {
                         dockerImage.push()
+                        dockerImage.push('latest')
                     }
                 }
             }
+        }
+
+        stage('Deploy to Amazon EKS') {
+            steps {
+                sh '''
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                '''
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+
+        success {
+            echo 'Pipeline executed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline execution failed.'
         }
     }
 }
