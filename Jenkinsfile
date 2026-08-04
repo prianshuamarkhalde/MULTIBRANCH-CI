@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "54.198.173.233:8082/devsecops-nexus:${BUILD_NUMBER}"
+        IMAGE_NAME = "prianshuamarkhalde/devsecops-nexus:${BUILD_NUMBER}"
     }
 
     stages {
