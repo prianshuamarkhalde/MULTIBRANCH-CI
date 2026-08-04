@@ -76,10 +76,17 @@ pipeline {
         stage('Docker Push to JFrog') {
             steps {
                 script {
-                    docker.withRegistry('http://54.198.173.233:8082', 'credentials-jfrog') {
+
+                    docker.withRegistry(
+                        'https://index.docker.io/v1/',
+                        'credentials-dockerhub'
+                    ) {
+
                         dockerImage.push()
                         dockerImage.push('latest')
+
                     }
+
                 }
             }
         }
