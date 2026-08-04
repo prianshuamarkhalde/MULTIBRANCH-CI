@@ -76,7 +76,7 @@ pipeline {
         stage('Docker Push to JFrog') {
             steps {
                 script {
-                    docker.withRegistry('http://54.145.247.149:8082', 'credentials-jfrog') {
+                    docker.withRegistry('http://54.198.173.233:8082', 'credentials-jfrog') {
                         dockerImage.push()
                         dockerImage.push('latest')
                     }
