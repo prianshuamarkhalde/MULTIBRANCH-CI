@@ -82,7 +82,7 @@ pipeline {
                         'credentials-dockerhub'
                     ) {
 
-                        dockerImage.push()
+                        dockerImage.push("${BUILD_NUMBER}")
                         dockerImage.push('latest')
 
                     }
