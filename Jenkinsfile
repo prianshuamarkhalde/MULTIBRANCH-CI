@@ -72,11 +72,17 @@ pipeline {
             }
         }
 
-        stage('Deploy to Amazon EKS') {
+        stage('Deploy to EKS') {
             steps {
                 sh '''
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
+                aws eks update-kubeconfig \
+                --region us-east-1 \
+                --name my-eks-cluster
+
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+
+                kubectl get pods
                 '''
             }
         }
