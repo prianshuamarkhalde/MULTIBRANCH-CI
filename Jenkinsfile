@@ -48,35 +48,18 @@ pipeline {
 
         stage('Upload Artifact to JFrog') {
             steps {
-                rtUpload(
-                    serverId: 'jfrog-server',
-                    spec: '''{
-                        "files": [
-                            {
-                                "pattern": "target/*.jar",
-                                "target": "libs-release-local/"
-                            }
-                        ]
-                    }'''
-                )
+                sh '''
+                    jf rt upload "target/*.jar" "libs-release-local/"
+                '''
             }
         }
 
         stage('Download Artifact from JFrog') {
             steps {
-                sh 'mkdir -p downloaded'
-
-                rtDownload(
-                    serverId: 'jfrog-server',
-                    spec: '''{
-                        "files": [
-                            {
-                                "pattern": "libs-release-local/**/*.jar",
-                                "target": "downloaded/"
-                            }
-                        ]
-                    }'''
-                )
+                sh '''
+                    mkdir -p downloaded
+                    jf rt download "libs-release-local/**/*.jar" "downloaded/"
+                '''
             }
         }
 
