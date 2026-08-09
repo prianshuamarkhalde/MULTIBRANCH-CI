@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -28,14 +29,23 @@ pipeline {
         stage('OWASP Dependency-Check') {
             steps {
                 sh '''
+                    echo "=== Jenkins Workspace ==="
+                    pwd
+
+                    echo "=== Creating report directory ==="
                     mkdir -p "$WORKSPACE/dependency-check-report"
+
+                    echo "=== Checking directory ==="
+                    ls -ld "$WORKSPACE/dependency-check-report"
+
+                    echo "=== Running Dependency-Check ==="
                     dependency-check.sh \
-                    --project "DevSecOps-Nexus" \
-                    --scan . \
-                    --format HTML \
-                    --format XML \
-                    --out dependency-check-report \
-                    --failOnCVSS 7
+                        --project "DevSecOps-Nexus" \
+                        --scan "$WORKSPACE" \
+                        --format HTML \
+                        --format XML \
+                        --out "$WORKSPACE/dependency-check-report" \
+                        --failOnCVSS 7
                 '''
             }
         }
@@ -73,14 +83,14 @@ pipeline {
             steps {
                 sh '''
                     trivy image \
-                    --severity HIGH,CRITICAL \
-                    --exit-code 1 \
-                    ${IMAGE_NAME}
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        "${IMAGE_NAME}"
                 '''
             }
         }
 
-        stage('Docker Push to JFrog') {
+        stage('Docker Push to DockerHub') {
             steps {
                 script {
                     docker.withRegistry(
@@ -98,8 +108,8 @@ pipeline {
             steps {
                 sh '''
                     aws eks update-kubeconfig \
-                    --region us-east-1 \
-                    --name my-eks-cluster
+                        --region us-east-1 \
+                        --name my-eks-cluster
 
                     kubectl apply -f deployment.yaml
                     kubectl apply -f service.yaml
@@ -124,3 +134,4 @@ pipeline {
         }
     }
 }
+```
