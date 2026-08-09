@@ -44,7 +44,7 @@ pipeline {
                     --format HTML \
                     --format XML \
                     --out "$WORKSPACE/dependency-check-report" \
-                    --failOnCVSS 7
+                    --failOnCVSS 7 \
                     --disableOssIndex
                 '''
             }
