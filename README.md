@@ -341,6 +341,7 @@ The project showcases practical implementation of **Continuous Integration, Cont
 # 👨‍💻 Author
 
 ## **Prianshu Amar Khalde**
+## **Om Vilas Kardile**
 
 🎓 B.Tech Computer Science & Engineering
 💻 DevOps / DevSecOps Project
@@ -349,6 +350,8 @@ The project showcases practical implementation of **Continuous Integration, Cont
 ### 🔗 GitHub
 
 https://github.com/prianshuamarkhalde
+https://github.com/omk2682
+
 
 ### 📂 Project Repository
 
