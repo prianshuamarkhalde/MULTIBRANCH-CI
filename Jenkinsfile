@@ -26,26 +26,26 @@ pipeline {
             }
         }
 
-        stage('OWASP Dependency-Check') {
-            steps {
-                sh '''
-                    echo "=== Jenkins Workspace ==="
-                    pwd
+       stage('OWASP Dependency-Check') {
+        steps {
+            sh '''
+                echo "=== Jenkins Workspace ==="
+                pwd
 
-                    echo "=== Creating report directory ==="
-                    mkdir -p "$WORKSPACE/dependency-check-report"
+                echo "=== Creating report directory ==="
+                mkdir -p "$WORKSPACE/dependency-check-report"
 
-                    echo "=== Checking directory ==="
-                    ls -ld "$WORKSPACE/dependency-check-report"
+                echo "=== Checking directory ==="
+                ls -ld "$WORKSPACE/dependency-check-report"
 
-                    echo "=== Running Dependency-Check ==="
-                    dependency-check.sh \
-                        --project "DevSecOps-Nexus" \
-                        --scan "$WORKSPACE" \
-                        --format HTML \
-                        --format XML \
-                        --out "$WORKSPACE/dependency-check-report" \
-                        --failOnCVSS 7
+                echo "=== Running Dependency-Check ==="
+                dependency-check.sh \
+                    --project "DevSecOps-Nexus" \
+                    --scan "$WORKSPACE" \
+                    --format HTML \
+                    --format XML \
+                    --out "$WORKSPACE/dependency-check-report" \
+                    --failOnCVSS 7
                 '''
             }
         }
