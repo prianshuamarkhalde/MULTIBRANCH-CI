@@ -15,7 +15,7 @@ It integrates:
 * 🛡️ **OWASP Dependency-Check** — Dependency Security
 * 🐳 **Docker** — Containerization
 * 🔐 **Trivy** — Container Security Scanning
-* 📦 **Docker Hub** — Container Registry
+* 📦 **JFrog** — Container Registry
 * ☸️ **Kubernetes** — Container Orchestration
 * ☁️ **Amazon EKS** — Cloud Kubernetes Platform
 
@@ -33,7 +33,7 @@ The main objectives of this project are:
 ✅ Enforce code-quality standards using Quality Gates
 ✅ Build and version Docker images
 ✅ Scan container images for vulnerabilities
-✅ Push images to Docker Hub
+✅ Push images to JFrog
 ✅ Automatically deploy applications to Amazon EKS
 ✅ Implement DevSecOps practices throughout the pipeline
 
@@ -51,7 +51,7 @@ The main objectives of this project are:
 | 🛡️ Dependency Security | OWASP Dependency-Check |
 | 🐳 Containerization     | Docker                 |
 | 🔐 Container Security   | Trivy                  |
-| 📦 Container Registry   | Docker Hub             |
+| 📦 Container Registry   | JFrog                  |
 | ☸️ Orchestration        | Kubernetes             |
 | ☁️ Cloud Platform       | AWS                    |
 | 🚀 Kubernetes Service   | Amazon EKS             |
@@ -91,7 +91,7 @@ The main objectives of this project are:
                    🔐 Trivy Scan
                          |
                          v
-                   📦 Docker Hub
+                   📦 JFrog
                          |
                          v
                     ☁️ AWS EKS
@@ -132,7 +132,7 @@ The complete pipeline follows this workflow:
       ↓
 🔐 Trivy Security Scan
       ↓
-📦 Docker Hub Push
+📦 JFrog Push
       ↓
 ☁️ Amazon EKS
       ↓
@@ -176,7 +176,7 @@ It defines all automated stages including:
 🔹 SonarQube Analysis
 🔹 Docker Build
 🔹 Trivy Scan
-🔹 Docker Hub Push
+🔹 JFrog Push
 🔹 EKS Deployment
 
 ---
@@ -357,9 +357,9 @@ This adds an additional security layer before publishing the container image. �
 
 ---
 
-## 9️⃣ Docker Hub Push 📦
+## 9️⃣ JFrog Push 📦
 
-The Docker image is pushed to Docker Hub.
+The Docker image is pushed to JFrog.
 
 Two tags are maintained:
 
@@ -479,7 +479,7 @@ This ensures that every successful build can have its own identifiable container
 
 The pipeline requires appropriate credentials to access external services.
 
-### 🐳 Docker Hub
+### 🐳 JFrog
 
 Credential ID:
 
@@ -512,7 +512,7 @@ Before running the project, make sure the following tools are installed:
 🔐 Trivy
 ☁️ AWS CLI
 ☸️ kubectl
-📦 Docker Hub
+📦 JFrog
 ```
 
 You also need:
@@ -521,7 +521,7 @@ You also need:
 * ☸️ Amazon EKS cluster
 * 🔑 Required IAM permissions
 * 🔐 Jenkins credentials
-* 🐳 Docker Hub account
+* 🐳 JFrog account
 
 ---
 
@@ -668,7 +668,7 @@ kubectl get all -n myapp
 | 🚦 Quality Gate            | SonarQube        |
 | 🐳 Containerization        | Docker           |
 | 🔐 Image Scanning          | Trivy            |
-| 📦 Image Registry          | Docker Hub       |
+| 📦 Image Registry          | JFrog       |
 | ☸️ Container Orchestration | Kubernetes       |
 | ☁️ Cloud Deployment        | Amazon EKS       |
 | 🌐 Application Exposure    | LoadBalancer     |
@@ -752,7 +752,7 @@ This project demonstrates a complete **end-to-end DevSecOps CI/CD pipeline** usi
 
 The integration of:
 
-**🐙 GitHub → ⚙️ Jenkins → 🔨 Maven → 🛡️ OWASP → 🔍 SonarQube → 🐳 Docker → 🔐 Trivy → 📦 Docker Hub → ☁️ Amazon EKS**
+**🐙 GitHub → ⚙️ Jenkins → 🔨 Maven → 🛡️ OWASP → 🔍 SonarQube → 🐳 Docker → 🔐 Trivy → 📦 JFrog → ☁️ Amazon EKS**
 
 creates an automated, secure, scalable, and reliable software delivery workflow. 🚀
 
