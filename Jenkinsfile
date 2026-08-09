@@ -1,104 +1,134 @@
+
+
 pipeline {
-    agent any
+agent any
 
-    environment {
-        IMAGE_NAME = "prianshuamarkhalde/devsecops-nexus:${BUILD_NUMBER}"
+```
+environment {
+    IMAGE_NAME = "prianshuamarkhalde/devsecops-nexus:${BUILD_NUMBER}"
+}
+
+stages {
+
+    stage('Checkout') {
+        steps {
+            checkout scm
+        }
     }
 
-    stages {
-
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
+    stage('Build') {
+        steps {
+            sh 'mvn clean package'
         }
+    }
 
-        stage('Build') {
-            steps {
-                sh 'mvn clean package'
-            }
+    stage('Unit Tests') {
+        steps {
+            sh 'mvn test'
         }
+    }
 
-        stage('Unit Tests') {
-            steps {
-                sh 'mvn test'
-            }
+    stage('OWASP Dependency-Check') {
+        steps {
+            sh '''
+                dependency-check.sh \
+                --project "DevSecOps-Nexus" \
+                --scan . \
+                --format HTML \
+                --format XML \
+                --out dependency-check-report \
+                --failOnCVSS 7
+            '''
         }
+    }
 
-        stage('SonarQube Analysis') {
-            environment {
-                SCANNER_HOME = tool 'SonarScanner'
-            }
-            steps {
-                withSonarQubeEnv('SonarCloud') {
-                    sh """
-                        ${SCANNER_HOME}/bin/sonar-scanner
-                    """
-                }
-            }
+    stage('SonarQube Analysis') {
+        environment {
+            SCANNER_HOME = tool 'SonarScanner'
         }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
-        stage('Docker Build') {
-            steps {
-                script {
-                    dockerImage = docker.build("${IMAGE_NAME}")
-                }
-            }
-        }
-
-        stage('Docker Push to JFrog') {
-            steps {
-                script {
-
-                    docker.withRegistry(
-                        'https://index.docker.io/v1/',
-                        'credentials-dockerhub'
-                    ) {
-
-                        dockerImage.push("${BUILD_NUMBER}")
-                        dockerImage.push('latest')
-
-                    }
-
-                }
-            }
-        }
-
-        stage('Deploy to EKS') {
-            steps {
-                sh '''
-                aws eks update-kubeconfig \
-                --region us-east-1 \
-                --name my-eks-cluster
-
-                kubectl apply -f deployment.yaml
-                kubectl apply -f service.yaml
-
-                kubectl get pods
-                '''
+        steps {
+            withSonarQubeEnv('SonarCloud') {
+                sh """
+                    ${SCANNER_HOME}/bin/sonar-scanner
+                """
             }
         }
     }
 
-    post {
-        always {
-            cleanWs()
-        }
-
-        success {
-            echo 'Pipeline executed successfully.'
-        }
-
-        failure {
-            echo 'Pipeline execution failed.'
+    stage('Quality Gate') {
+        steps {
+            timeout(time: 5, unit: 'MINUTES') {
+                waitForQualityGate abortPipeline: true
+            }
         }
     }
+
+    stage('Docker Build') {
+        steps {
+            script {
+                dockerImage = docker.build("${IMAGE_NAME}")
+            }
+        }
+    }
+
+    stage('Trivy Image Scan') {
+        steps {
+            sh '''
+                trivy image \
+                --severity HIGH,CRITICAL \
+                --exit-code 1 \
+                ${IMAGE_NAME}
+            '''
+        }
+    }
+
+    stage('Docker Push to JFrog') {
+        steps {
+            script {
+
+                docker.withRegistry(
+                    'https://index.docker.io/v1/',
+                    'credentials-dockerhub'
+                ) {
+
+                    dockerImage.push("${BUILD_NUMBER}")
+                    dockerImage.push('latest')
+
+                }
+
+            }
+        }
+    }
+
+    stage('Deploy to EKS') {
+        steps {
+            sh '''
+            aws eks update-kubeconfig \
+            --region us-east-1 \
+            --name my-eks-cluster
+
+            kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml
+
+            kubectl get pods
+            '''
+        }
+    }
+}
+
+post {
+    always {
+        cleanWs()
+    }
+
+    success {
+        echo 'Pipeline executed successfully.'
+    }
+
+    failure {
+        echo 'Pipeline execution failed.'
+    }
+}
+```
+
 }
