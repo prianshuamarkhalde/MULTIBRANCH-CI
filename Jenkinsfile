@@ -28,6 +28,7 @@ pipeline {
         stage('OWASP Dependency-Check') {
             steps {
                 sh '''
+                    mkdir -p dependency-check-report
                     dependency-check.sh \
                     --project "DevSecOps-Nexus" \
                     --scan . \
